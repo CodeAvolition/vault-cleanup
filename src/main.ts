@@ -60,9 +60,29 @@ export default class VaultCleanupPlugin extends Plugin {
     this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
   }
 
-  async saveSettings() {
-    await this.saveData(this.settings);
-  }
+async saveSettings() {
+  await this.saveData(this.settings);
+  this.refreshDashboards();
+  this.refreshQueues();
+}
+
+refreshDashboards() {
+  this.app.workspace.getLeavesOfType(VIEW_TYPE_DASHBOARD).forEach(leaf => {
+    const view = leaf.view;
+    if (view instanceof CleanupDashboardView) {
+      view.render();
+    }
+  });
+}
+
+refreshQueues() {
+  this.app.workspace.getLeavesOfType(VIEW_TYPE_QUEUE).forEach(leaf => {
+    const view = leaf.view;
+    if (view instanceof CleanupQueueView) {
+      view.render();
+    }
+  });
+}
 
   async activateDashboard() {
     const { workspace } = this.app;
