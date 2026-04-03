@@ -2,7 +2,7 @@ import { App, TFile } from 'obsidian';
 
 // Allowed top-level folders (add more as needed)
 const ALLOWED_FOLDERS = new Set([
-  'assets',
+  'attachments',
   'daily',
   'templates',
   'archived',

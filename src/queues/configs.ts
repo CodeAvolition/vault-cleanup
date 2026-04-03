@@ -57,13 +57,14 @@ export const QUEUE_CONFIGS: Record<QueueType, QueueConfig> = {
   },
   unused: {
     id: 'unused',
-    title: 'Unused Assets',
+    title: 'Unused Attachments',
     icon: '🖼️',
     description: 'Images, videos, audio, and drawings not linked anywhere',
-    action: 'Link the asset in a note or delete it',
+    action: 'Link the attachment in a note or delete it',
     hasBatchDelete: true,
     editAction: 'open',
   },
+
   orphan: {
     id: 'orphan',
     title: 'Orphan Notes',

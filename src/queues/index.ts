@@ -3,7 +3,7 @@ import { QueueType } from './types';
 import { getEmptyFiles } from './empty';
 import { getUntaggedFiles } from './untagged';
 import { getUnfiledFiles } from './unfiled';
-import { getUnusedAssets } from './unusedAssets';
+import { getUnusedAttachments } from './unusedAttachments';
 import { getOrphanFiles } from './orphan';
 import { getMissingTypeFiles } from './missingType';
 import { getMissingTopicFiles } from './missingTopic';
@@ -21,7 +21,7 @@ export class QueueDetectors {
       case 'unfiled':
         return getUnfiledFiles(this.app);
       case 'unused':
-        return getUnusedAssets(this.app);
+        return getUnusedAttachments(this.app);
       case 'orphan':
         return getOrphanFiles(this.app);
       case 'missingType':

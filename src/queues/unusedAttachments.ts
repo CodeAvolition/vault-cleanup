@@ -1,6 +1,6 @@
 import { App, TFile } from 'obsidian';
 
-const ASSET_EXTENSIONS = new Set([
+const ATTACHMENT_EXTENSIONS = new Set([
   // Images
   'png', 'jpg', 'jpeg', 'gif', 'svg', 'webp', 'bmp', 'ico',
   // Video
@@ -11,7 +11,7 @@ const ASSET_EXTENSIONS = new Set([
   'excalidraw',
 ]);
 
-export async function getUnusedAssets(app: App): Promise<TFile[]> {
+export async function getUnusedAttachments(app: App): Promise<TFile[]> {
   // Collect all linked paths
   const linkedPaths = new Set<string>();
   const resolvedLinks = app.metadataCache.resolvedLinks;
@@ -55,7 +55,7 @@ export async function getUnusedAssets(app: App): Promise<TFile[]> {
   // Find unused
   return app.vault.getFiles().filter(file => {
     const ext = file.extension.toLowerCase();
-    const isAsset = ASSET_EXTENSIONS.has(ext) || file.path.endsWith('.excalidraw.md');
-    return isAsset && !linkedPaths.has(file.path);
+    const isAttachment = ATTACHMENT_EXTENSIONS.has(ext) || file.path.endsWith('.excalidraw.md');
+    return isAttachment && !linkedPaths.has(file.path);
   });
 }
