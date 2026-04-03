@@ -42,9 +42,6 @@ While the defaults reflect this workflow, settings are provided for those who pr
 The **Unused Attachments** detection is inspired by [Clear Unused Images](https://github.com/ozntel/oz-clear-unused-images-obsidian) by [ozntel](https://github.com/ozntel). Consider [supporting their work](https://ko-fi.com/L3L356V6Q)!
 
 ## TODO
-- [ ] publish workflows von lucEast übernehmen .releaserc
-- [ ] For Unfiled Files queue: "Edit" should open Obsidian's built-in "Move file" dialog
-- [ ] Publish this plugin to the community plugin list once im done with it
 
 ---
 

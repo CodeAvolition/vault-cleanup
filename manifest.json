@@ -2,7 +2,7 @@
   "id": "vault-cleanup",
   "name": "Vault Cleanup",
   "version": "1.0.0",
-  "minAppVersion": "0.15.0",
+  "minAppVersion": "1.5.0",
   "description": "Dashboard for cleaning up empty, untagged, and unfiled notes",
   "author": "CodeA",
   "authorUrl": "https://github.com/CodeAvolition",
