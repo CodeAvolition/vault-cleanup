@@ -1,12 +1,44 @@
-# TODO:
-- [ ] make sure no / as little scss is needed as possible (i want to use as many basic theme styles as possible and very little custom styling)
-- [ ] Cleanup this readme
-- [ ] publish this plugin so i can easily use it in all my vaults
 
+A dashboard plugin for Obsidian that helps you clean up your vault by finding and managing problematic files.
 
+## Features
 
+- **Dashboard view** — Overview of all cleanup categories with file counts
+- **Queue system** — Work through files one-by-one with a Tinder-like interface
+- **Live preview** — See file contents (markdown, images, video, audio) directly in the queue
+- **Auto-refresh** — Dashboard updates automatically when files change
+- **Keyboard shortcuts** — Speed through queues with `E` (Edit), `D` (Delete), `S` (Skip)
+- **Batch delete** — "Delete All" button for empty files and unused attachments
 
-## Releasing new releases
+## Cleanup Profiles
+
+|Profile|Description|
+|---|---|
+|📄 **Empty Files**|Notes, canvas, and base files with no content|
+|🏷️ **Untagged Files**|Markdown notes without any tags|
+|📁 **Unfiled Files**|Notes sitting in the vault root (no folder)|
+|🖼️ **Unused Attachments**|Images, videos, audio, and Excalidraw files not linked anywhere|
+
+## Usage
+
+1. Click the 🗑️ icon in the ribbon, or use command palette: `Open Cleanup Dashboard`
+2. See an overview of files needing attention in each category
+3. Click **Start Queue** to work through files one-by-one
+4. Use **Delete All** for batch operations (empty files & unused attachments)
+
+## Credits
+
+The **Unused Attachments** detection is inspired by [Clear Unused Images](https://github.com/ozntel/oz-clear-unused-images-obsidian) by [ozntel](https://github.com/ozntel). Consider [supporting their work](https://ko-fi.com/L3L356V6Q)!
+
+## TODO
+
+- [ ] Publish this plugin to the community plugin list
+- [ ] Add settings to enable/disable individual cleanup profiles
+- [ ] For Unfiled Files queue: "Edit" should open Obsidian's built-in "Move file" dialog
+
+---
+
+## Releasing New Releases
 
 - Update your `manifest.json` with your new version number, such as `1.0.1`, and the minimum Obsidian version required for your latest release.
 - Update your `versions.json` file with `"new-plugin-version": "minimum-obsidian-version"` so older versions of Obsidian can download an older version of your plugin that's compatible.
@@ -14,24 +46,22 @@
 - Upload the files `manifest.json`, `main.js`, `styles.css` as binary attachments. Note: The manifest.json file must be in two places, first the root path of your repository and also in the release.
 - Publish the release.
 
-> You can simplify the version bump process by running `npm version patch`, `npm version minor` or `npm version major` after updating `minAppVersion` manually in `manifest.json`.
+> You can simplify the version bump process by running `npm version patch`, `npm version minor` or `npm version major` after updating `minAppVersion` manually in `manifest.json`.  
 > The command will bump version in `manifest.json` and `package.json`, and add the entry for the new version to `versions.json`
 
-## Adding your plugin to the community plugin list
+## Adding Your Plugin to the Community Plugin List
 
 - Check the [plugin guidelines](https://docs.obsidian.md/Plugins/Releasing/Plugin+guidelines).
 - Publish an initial version.
 - Make sure you have a `README.md` file in the root of your repo.
 - Make a pull request at https://github.com/obsidianmd/obsidian-releases to add your plugin.
 
-## How to use if not willing to use the community plugin list
+## Manual Installation
 
-- Clone this repo.
-- Make sure your NodeJS is at least v16 (`node --version`).
-- `npm i` or `yarn` to install dependencies.
-- `npm run dev` to start compilation in watch mode.
+- Copy over `main.js`, `styles.css`, `manifest.json` to your vault `VaultFolder/.obsidian/plugins/vault-cleanup/`.
 
-## Manually installing the plugin
+## Development
 
-- Copy over `main.js`, `styles.css`, `manifest.json` to your vault `VaultFolder/.obsidian/plugins/your-plugin-id/`.
-
+- Clone this repo into your vault's `.obsidian/plugins/` folder
+- `npm install` to install dependencies
+- `npm run dev` to start compilation in watch mode
