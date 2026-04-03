@@ -1,8 +1,9 @@
 import { ItemView, WorkspaceLeaf, TFile, Notice } from 'obsidian';
 import type VaultCleanupPlugin from '../main';
-import { QUEUE_CONFIGS } from '../queue-configs';
+import { QUEUE_CONFIGS } from '../queues/configs';
 import { FilePreviewRenderer } from '../renderer';
-import { VIEW_TYPE_QUEUE, QueueType } from '../types';
+import { VIEW_TYPE_QUEUE } from './types';
+import { QueueType } from '../queues/types';
 
 export class CleanupQueueView extends ItemView {
   plugin: VaultCleanupPlugin;

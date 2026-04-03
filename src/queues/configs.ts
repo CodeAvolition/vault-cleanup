@@ -1,0 +1,68 @@
+import { QueueConfig, QueueType } from './types';
+
+export const QUEUE_CONFIGS: Record<QueueType, QueueConfig> = {
+  empty: {
+    id: 'empty',
+    title: 'Empty Files',
+    icon: '📄',
+    description: 'Notes, canvas, and base files with no content',
+    hasBatchDelete: true,
+    editAction: 'open',
+  },
+  missingType: {
+    id: 'missingType',
+    title: 'Missing Type Tag',
+    icon: '🏷️',
+    description: 'Notes without a type/* tag',
+    hasBatchDelete: false,
+    editAction: 'open',
+  },
+  missingTopic: {
+    id: 'missingTopic',
+    title: 'Missing Topic Tag',
+    icon: '📚',
+    description: 'Notes without a topic/* tag',
+    hasBatchDelete: false,
+    editAction: 'open',
+  },
+  untagged: {
+    id: 'untagged',
+    title: 'Untagged Files',
+    icon: '🚫',
+    description: 'Notes without any tags at all',
+    hasBatchDelete: false,
+    editAction: 'open',
+  },
+  unfiled: {
+    id: 'unfiled',
+    title: 'Unfiled Files',
+    icon: '📁',
+    description: 'Notes in the vault root',
+    hasBatchDelete: false,
+    editAction: 'move',
+  },
+  misfiled: {
+    id: 'misfiled',
+    title: 'Misfiled Notes',
+    icon: '📂',
+    description: 'Notes in non-standard folders',
+    hasBatchDelete: false,
+    editAction: 'move',
+  },
+  unused: {
+    id: 'unused',
+    title: 'Unused Attachments',
+    icon: '🖼️',
+    description: 'Media files not linked anywhere',
+    hasBatchDelete: true,
+    editAction: 'open',
+  },
+  orphan: {
+    id: 'orphan',
+    title: 'Orphan Notes',
+    icon: '🔗',
+    description: 'Notes with no links in or out',
+    hasBatchDelete: false,
+    editAction: 'open',
+  },
+};
