@@ -1,7 +1,7 @@
 import { App, PluginSettingTab, Setting } from 'obsidian';
 import type VaultCleanupPlugin from './main';
-import { QUEUE_CONFIGS } from './queues';
 import { QueueType } from './types';
+import { QUEUE_CONFIGS } from './queue-configs';
 
 export class VaultCleanupSettingTab extends PluginSettingTab {
   plugin: VaultCleanupPlugin;

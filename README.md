@@ -36,6 +36,7 @@ i want interfaces, the queues with their individual methods split up
 the dashboard as a single part
 the whole "technical" rendering logic split from the "business" logic
 - [ ] Add settings to enable/disable individual cleanup profiles
+- [ ] publish workflows von lucEast übernehmen .releaserc
 - [ ] For Unfiled Files queue: "Edit" should open Obsidian's built-in "Move file" dialog
 - [ ] Publish this plugin to the community plugin list once im done with it
 

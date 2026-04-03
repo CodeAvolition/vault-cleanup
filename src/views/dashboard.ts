@@ -1,6 +1,6 @@
 import { ItemView, WorkspaceLeaf, debounce, Notice } from 'obsidian';
 import type VaultCleanupPlugin from '../main';
-import { QUEUE_CONFIGS } from '../queues';
+import { QUEUE_CONFIGS } from '../queue-configs';
 import { VIEW_TYPE_DASHBOARD, QueueConfig, QueueType } from '../types';
 
 export class CleanupDashboardView extends ItemView {

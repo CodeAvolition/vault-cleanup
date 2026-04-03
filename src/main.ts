@@ -1,7 +1,7 @@
 import { Plugin } from 'obsidian';
-import { QueueDetectors, QUEUE_CONFIGS } from './queues';
+import { QueueDetectors } from './queues';
+import { QUEUE_CONFIGS } from './queue-configs';
 import { CleanupDashboardView } from './views/dashboard';
-import { CleanupQueueView } from './views/queue';
 import { VaultCleanupSettingTab } from './settings';
 import { 
   VIEW_TYPE_DASHBOARD, 
@@ -10,6 +10,7 @@ import {
   VaultCleanupSettings, 
   DEFAULT_SETTINGS 
 } from './types';
+import { CleanupQueueView } from './views/queue';
 
 export default class VaultCleanupPlugin extends Plugin {
   settings: VaultCleanupSettings;
