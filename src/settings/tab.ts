@@ -45,8 +45,8 @@ export class VaultCleanupSettingTab extends PluginSettingTab {
         .addOption('root', 'Notes in root, special folders only')
         .addOption('folders', 'Notes organized in folders')
         .setValue(this.plugin.settings.vaultOrganization)
-        .onChange(async (value: VaultOrganization) => {
-          this.plugin.settings.vaultOrganization = value;
+        .onChange(async (value: string) => {
+          this.plugin.settings.vaultOrganization = value as VaultOrganization;
           await this.plugin.saveSettings();
           this.display();
         })
@@ -58,7 +58,7 @@ export class VaultCleanupSettingTab extends PluginSettingTab {
         .setName('Allowed folders')
         .setDesc('Comma-separated folder names where notes are allowed')
         .addText(text => text
-          .setPlaceholder('attachments, daily, templates, archived')
+          .setPlaceholder('Attachments, daily, templates, archived')
           .setValue(this.plugin.settings.allowedFolders.join(', '))
           .onChange(async (value) => {
             this.plugin.settings.allowedFolders = value
@@ -72,7 +72,7 @@ export class VaultCleanupSettingTab extends PluginSettingTab {
 
     // Hotkeys section
     new Setting(containerEl)
-      .setName('Hotkeys')
+      .setName('Keyboard shortcuts')
       .setHeading();
 
     new Setting(containerEl)
@@ -89,7 +89,7 @@ export class VaultCleanupSettingTab extends PluginSettingTab {
 
     if (this.plugin.settings.enableQueueHotkeys) {
       const hotkeySettings = [
-        { key: 'hotkeyEdit', name: 'Edit / Move / Add Tag', desc: 'Key for the primary action' },
+        { key: 'hotkeyEdit', name: 'Edit / Move / Add tag', desc: 'Key for the primary action' },
         { key: 'hotkeyDelete', name: 'Delete', desc: 'Key to delete the current file' },
         { key: 'hotkeyKeep', name: 'Keep', desc: 'Key to keep the file as-is and move on' },
         { key: 'hotkeyExit', name: 'Exit', desc: 'Key to exit the queue' },

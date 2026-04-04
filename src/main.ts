@@ -1,19 +1,18 @@
 import { Plugin } from 'obsidian';
-import { QueueDetectors } from './queues';
-import { QUEUE_CONFIGS } from './queues/configs';
-import { QueueType } from './queues/types';
 import { CleanupDashboardView } from './views/dashboard';
 import { CleanupQueueView } from './views/queue';
 import { VIEW_TYPE_DASHBOARD, VIEW_TYPE_QUEUE } from './views/types';
-import { VaultCleanupSettingTab } from './settings/tab';
 import { VaultCleanupSettings, DEFAULT_SETTINGS } from './settings/types';
-import { CleanupQueueView } from './views/queue';
+import { VaultCleanupSettingTab } from './settings/tab';
+import { QueueDetectors } from './queues';
+import { QueueType } from './queues/types';
+import { QUEUE_CONFIGS } from './queues/configs';
 
 export default class VaultCleanupPlugin extends Plugin {
-  settings: VaultCleanupSettings;
-  detectors: QueueDetectors;
+  settings: VaultCleanupSettings = DEFAULT_SETTINGS;
+  detectors!: QueueDetectors;
 
-  async onload() {
+  async onload(): Promise<void> {
     await this.loadSettings();
 
     this.detectors = new QueueDetectors(
@@ -21,86 +20,84 @@ export default class VaultCleanupPlugin extends Plugin {
       () => this.settings.allowedFolders
     );
 
-    // Register views
     this.registerView(VIEW_TYPE_DASHBOARD, (leaf) => new CleanupDashboardView(leaf, this));
     this.registerView(VIEW_TYPE_QUEUE, (leaf) => new CleanupQueueView(leaf, this));
 
-    // Settings tab
-    this.addSettingTab(new VaultCleanupSettingTab(this.app, this));
-
-    // Ribbon icon
-    this.addRibbonIcon('trash-2', 'Open Vault Cleanup', () => this.activateDashboard());
-
-    // Commands
-    this.addCommand({
-      id: 'open-cleanup-dashboard',
-      name: 'Open Cleanup Dashboard',
-      callback: () => this.activateDashboard()
+    this.addRibbonIcon('trash-2', 'Open cleanup dashboard', () => {
+      void this.activateDashboard();
     });
 
-    for (const config of Object.values(QUEUE_CONFIGS)) {
+    this.addCommand({
+      id: 'open-dashboard',
+      name: 'Open cleanup dashboard',
+      callback: () => {
+        void this.activateDashboard();
+      },
+    });
+
+    for (const [id, config] of Object.entries(QUEUE_CONFIGS)) {
       this.addCommand({
-        id: `open-${config.id}-queue`,
-        name: `Open ${config.title} Queue`,
-        checkCallback: (checking) => {
-          if (!this.settings.enabledQueues[config.id]) return false;
-          if (!checking) this.openQueueView(config.id);
-          return true;
-        }
+        id: `open-${id}-queue`,
+        name: `Open ${config.title.toLowerCase()} queue`,
+        callback: () => {
+          void this.openQueue(id as QueueType);
+        },
       });
     }
+
+    this.addSettingTab(new VaultCleanupSettingTab(this.app, this));
   }
 
-  async onunload() {
-    this.app.workspace.detachLeavesOfType(VIEW_TYPE_DASHBOARD);
-    this.app.workspace.detachLeavesOfType(VIEW_TYPE_QUEUE);
+  // Removed onunload() - don't detach leaves as it resets their position
+
+  async loadSettings(): Promise<void> {
+    const data = await this.loadData() as VaultCleanupSettings | null;
+    this.settings = Object.assign({}, DEFAULT_SETTINGS, data);
   }
 
-  async loadSettings() {
-    this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+  async saveSettings(): Promise<void> {
+    await this.saveData(this.settings);
+    this.refreshDashboards();
+    this.refreshQueues();
   }
 
-async saveSettings() {
-  await this.saveData(this.settings);
-  this.refreshDashboards();
-  this.refreshQueues();
-}
+  refreshDashboards(): void {
+    this.app.workspace.getLeavesOfType(VIEW_TYPE_DASHBOARD).forEach(leaf => {
+      const view = leaf.view;
+      if (view instanceof CleanupDashboardView) {
+        void view.render();
+      }
+    });
+  }
 
-refreshDashboards() {
-  this.app.workspace.getLeavesOfType(VIEW_TYPE_DASHBOARD).forEach(leaf => {
-    const view = leaf.view;
-    if (view instanceof CleanupDashboardView) {
-      view.render();
-    }
+  refreshQueues(): void {
+    this.app.workspace.getLeavesOfType(VIEW_TYPE_QUEUE).forEach(leaf => {
+      const view = leaf.view;
+      if (view instanceof CleanupQueueView) {
+        void view.render();
+      }
+    });
+  }
+
+async activateDashboard(): Promise<void> {
+  const existing = this.app.workspace.getLeavesOfType(VIEW_TYPE_DASHBOARD);
+  if (existing.length > 0 && existing[0]) {
+    void this.app.workspace.revealLeaf(existing[0]);
+    return;
+  }
+
+  const leaf = this.app.workspace.getLeaf('tab');
+  await leaf.setViewState({
+    type: VIEW_TYPE_DASHBOARD,
+    active: true,
   });
 }
 
-refreshQueues() {
-  this.app.workspace.getLeavesOfType(VIEW_TYPE_QUEUE).forEach(leaf => {
-    const view = leaf.view;
-    if (view instanceof CleanupQueueView) {
-      view.render();
-    }
-  });
-}
-
-  async activateDashboard() {
-    const { workspace } = this.app;
-    let leaf = workspace.getLeavesOfType(VIEW_TYPE_DASHBOARD)[0];
-    if (!leaf) {
-      leaf = workspace.getLeaf('tab');
-      await leaf.setViewState({ type: VIEW_TYPE_DASHBOARD, active: true });
-    }
-    workspace.revealLeaf(leaf);
-  }
-
-  async openQueueView(queueType: QueueType) {
+  async openQueue(queueType: QueueType): Promise<void> {
     const leaf = this.app.workspace.getLeaf('tab');
     await leaf.setViewState({
       type: VIEW_TYPE_QUEUE,
-      active: true,
-      state: { queueType }
+      state: { queueType },
     });
-    this.app.workspace.revealLeaf(leaf);
   }
 }

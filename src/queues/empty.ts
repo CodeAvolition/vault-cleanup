@@ -1,5 +1,9 @@
 import { App, TFile } from 'obsidian';
 
+interface CanvasData {
+  nodes?: unknown[];
+}
+
 function stripFrontmatter(content: string): string {
   const match = content.match(/^---\r?\n[\s\S]*?\r?\n---\r?\n?/);
   if (match) {
@@ -32,7 +36,7 @@ export async function getEmptyFiles(app: App): Promise<TFile[]> {
     else if (file.extension === 'canvas') {
       const content = await app.vault.cachedRead(file);
       try {
-        const json = JSON.parse(content);
+        const json: CanvasData = JSON.parse(content) as CanvasData;
         if (!json.nodes || json.nodes.length === 0) {
           result.push(file);
         }

@@ -2,7 +2,8 @@ import { ItemView, WorkspaceLeaf, debounce, Notice, TFile } from 'obsidian';
 import type VaultCleanupPlugin from '../main';
 import { QUEUE_CONFIGS } from '../queues/configs';
 import { VIEW_TYPE_DASHBOARD, VIEW_TYPE_QUEUE } from './types';
-import { QueueType, BatchActionType } from '../queues/types';
+import { QueueType } from '../queues/types';
+import { ConfirmModal } from '../modals/confirm';
 
 export class CleanupDashboardView extends ItemView {
   plugin: VaultCleanupPlugin;
@@ -11,14 +12,14 @@ export class CleanupDashboardView extends ItemView {
   constructor(leaf: WorkspaceLeaf, plugin: VaultCleanupPlugin) {
     super(leaf);
     this.plugin = plugin;
-    this.debouncedRefresh = debounce(() => this.render(), 500, true);
+    this.debouncedRefresh = debounce(() => { void this.render(); }, 500, true);
   }
 
   getViewType(): string { return VIEW_TYPE_DASHBOARD; }
-  getDisplayText(): string { return 'Cleanup Dashboard'; }
+  getDisplayText(): string { return 'Cleanup dashboard'; }
   getIcon(): string { return 'trash-2'; }
 
-  async onOpen() {
+  async onOpen(): Promise<void> {
     this.contentEl.addClass('vault-cleanup-dashboard');
     this.registerEvent(this.app.metadataCache.on('changed', this.debouncedRefresh));
     this.registerEvent(this.app.vault.on('delete', this.debouncedRefresh));
@@ -27,76 +28,70 @@ export class CleanupDashboardView extends ItemView {
     await this.render();
   }
 
-  async onClose() {
+  async onClose(): Promise<void> {
     this.contentEl.empty();
   }
 
-  async render() {
+  async render(): Promise<void> {
     const container = this.contentEl;
     container.empty();
-    container.style.cssText = 'padding: 16px;';
+    container.addClass('vault-cleanup-dashboard-container');
 
-    container.createEl('h2', { text: '🧹 Cleanup Dashboard', attr: { style: 'margin: 0 0 16px 0;' } });
+    container.createEl('h2', { text: 'Cleanup dashboard', cls: 'vault-cleanup-dashboard-title' });
 
-    const grid = container.createEl('div', {
-      attr: { style: 'display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px;' }
-    });
+    const grid = container.createEl('div', { cls: 'vault-cleanup-grid' });
 
     for (const [id, config] of Object.entries(QUEUE_CONFIGS)) {
       if (!this.plugin.settings.enabledQueues[id as QueueType]) continue;
-
 
       // Handle mutually exclusive unfiled/misfiled based on organization preference
       if (id === 'unfiled' && this.plugin.settings.vaultOrganization !== 'folders') continue;
       if (id === 'misfiled' && this.plugin.settings.vaultOrganization !== 'root') continue;
 
       const files = await this.plugin.detectors.getFilesForQueue(id as QueueType);
-
       const count = files.length;
 
-      const card = grid.createEl('div', {
-        attr: {
-          style: 'background: var(--background-secondary); border-radius: 8px; padding: 16px; border: 1px solid var(--background-modifier-border);'
-        }
-      });
+      const card = grid.createEl('div', { cls: 'vault-cleanup-card' });
 
       card.createEl('div', {
         text: `${config.icon} ${config.title}`,
-        attr: { style: 'font-weight: 600; margin-bottom: 4px;' }
+        cls: 'vault-cleanup-card-title'
       });
 
       card.createEl('div', {
         text: config.description,
-        attr: { style: 'font-size: 0.85em; color: var(--text-muted); margin-bottom: 12px;' }
+        cls: 'vault-cleanup-card-description'
       });
 
       card.createEl('div', {
         text: `${count} file${count === 1 ? '' : 's'}`,
-        attr: { style: 'font-size: 1.5em; font-weight: 600; margin-bottom: 12px;' }
+        cls: 'vault-cleanup-card-count'
       });
 
-      const actions = card.createEl('div', { attr: { style: 'display: flex; gap: 8px; flex-wrap: wrap;' } });
+      const actions = card.createEl('div', { cls: 'vault-cleanup-actions' });
 
       if (count > 0) {
-        const startBtn = actions.createEl('button', { text: 'Start Queue' });
-        startBtn.addEventListener('click', () => this.openQueue(id as QueueType));
+        const startBtn = actions.createEl('button', { text: 'Start queue' });
+        startBtn.addEventListener('click', () => { void this.openQueue(id as QueueType); });
 
         // Batch action button
         if (config.batchAction) {
           const batchBtn = actions.createEl('button', { text: config.batchAction.label });
-          batchBtn.style.color = config.batchAction.type === 'delete' ? 'var(--text-error)' : '';
-          batchBtn.addEventListener('click', () => this.executeBatchAction(id as QueueType, files));
+          if (config.batchAction.type === 'delete') {
+            batchBtn.addClass('vault-cleanup-btn-delete');
+          }
+          batchBtn.addEventListener('click', () => { void this.executeBatchAction(id as QueueType, files); });
         }
       } else {
         card.createEl('span', {
-          text: '✓ All clear',
-          attr: { style: 'color: var(--text-success);' }
+          text: 'All clear',
+          cls: 'vault-cleanup-card-clear'
         });
       }
     }
   }
 
-  async openQueue(queueType: QueueType) {
+  async openQueue(queueType: QueueType): Promise<void> {
     const leaf = this.app.workspace.getLeaf('tab');
     await leaf.setViewState({
       type: VIEW_TYPE_QUEUE,
@@ -104,7 +99,7 @@ export class CleanupDashboardView extends ItemView {
     });
   }
 
-  async executeBatchAction(queueType: QueueType, files: TFile[]) {
+  async executeBatchAction(queueType: QueueType, files: TFile[]): Promise<void> {
     const config = QUEUE_CONFIGS[queueType];
     if (!config.batchAction) return;
 
@@ -113,30 +108,32 @@ export class CleanupDashboardView extends ItemView {
       ? `Delete ${count} file${count === 1 ? '' : 's'}? This will move them to trash.`
       : `Move ${count} file${count === 1 ? '' : 's'} to vault root?`;
 
-    if (!confirm(confirmMsg)) return;
+    new ConfirmModal(this.app, confirmMsg, () => {
+      void (async () => {
+        switch (config.batchAction?.type) {
+          case 'delete':
+            for (const file of files) {
+              await this.app.fileManager.trashFile(file);
+            }
+            new Notice(`Deleted ${count} file${count === 1 ? '' : 's'}`);
+            break;
 
-    switch (config.batchAction.type) {
-      case 'delete':
-        for (const file of files) {
-          await this.app.vault.trash(file, true);
+          case 'moveToRoot':
+            for (const file of files) {
+              const newPath = file.name;
+              if (this.app.vault.getAbstractFileByPath(newPath)) {
+                new Notice(`Skipped ${file.name}: file already exists at root`);
+                continue;
+              }
+              await this.app.vault.rename(file, newPath);
+            }
+            new Notice(`Moved ${count} file${count === 1 ? '' : 's'} to root`);
+            break;
         }
-        new Notice(`Deleted ${count} file${count === 1 ? '' : 's'}`);
-        break;
 
-      case 'moveToRoot':
-        for (const file of files) {
-          const newPath = file.name;
-          // Check if file already exists at root
-          if (this.app.vault.getAbstractFileByPath(newPath)) {
-            new Notice(`Skipped ${file.name}: file already exists at root`);
-            continue;
-          }
-          await this.app.vault.rename(file, newPath);
-        }
-        new Notice(`Moved ${count} file${count === 1 ? '' : 's'} to root`);
-        break;
-    }
+        await this.render();
+      })();
+    }).open();
 
-    await this.render();
   }
 }

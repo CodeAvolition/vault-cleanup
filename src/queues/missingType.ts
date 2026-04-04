@@ -1,26 +1,25 @@
-import { App, TFile } from 'obsidian';
+import { App, TFile, CachedMetadata } from 'obsidian';
 
-export function getMissingTypeFiles(app: App): TFile[] {
-  return app.vault.getMarkdownFiles().filter(file => {
-    const cache = app.metadataCache.getFileCache(file);
+export async function getMissingTypeFiles(app: App): Promise<TFile[]> {
+  const result: TFile[] = [];
+  const markdownFiles = app.vault.getMarkdownFiles();
 
-    const allTags: string[] = [];
+  for (const file of markdownFiles) {
+    const cache: CachedMetadata | null = app.metadataCache.getFileCache(file);
+    const frontmatterTags: string[] = Array.isArray(cache?.frontmatter?.tags)
+      ? (cache.frontmatter.tags as string[])
+      : [];
+    const inlineTags: string[] = (cache?.tags ?? []).map(t => t.tag);
+    const allTags: string[] = [...frontmatterTags, ...inlineTags];
 
-    if (cache?.frontmatter?.tags) {
-      const fmTags = cache.frontmatter.tags;
-      if (Array.isArray(fmTags)) {
-        allTags.push(...fmTags);
-      } else if (typeof fmTags === 'string') {
-        allTags.push(fmTags);
-      }
+    const hasTypeTag = allTags.some(tag =>
+      tag.toLowerCase().startsWith('#type/') || tag.toLowerCase().startsWith('type/')
+    );
+
+    if (!hasTypeTag) {
+      result.push(file);
     }
+  }
 
-    if (cache?.tags) {
-      allTags.push(...cache.tags.map(t => t.tag.replace(/^#/, '')));
-    }
-
-    const hasTypeTag = allTags.some(tag => tag.startsWith('type/'));
-
-    return !hasTypeTag;
-  });
+  return result;
 }

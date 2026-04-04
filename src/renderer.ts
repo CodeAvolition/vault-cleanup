@@ -1,87 +1,78 @@
-import { App, Component, MarkdownRenderer, TFile } from 'obsidian';
+import { App, TFile, MarkdownRenderer, Component } from 'obsidian';
 
-export class FilePreviewRenderer {
-  private component: Component | null = null;
+export class FilePreviewRenderer extends Component {
+  private app: App;
 
-  constructor(private app: App) {}
-
-  cleanup() {
-    if (this.component) {
-      this.component.unload();
-      this.component = null;
-    }
+  constructor(app: App) {
+    super();
+    this.app = app;
   }
 
   async render(file: TFile, container: HTMLElement): Promise<void> {
-    const ext = file.extension.toLowerCase();
+    container.empty();
 
-    // Images
-    const imageExts = ['png', 'jpg', 'jpeg', 'gif', 'svg', 'webp', 'bmp', 'ico'];
-    if (imageExts.includes(ext)) {
-      container.createEl('img', {
-        attr: {
-          src: this.app.vault.getResourcePath(file),
-          style: 'max-width: 100%; max-height: 500px; object-fit: contain;'
-        }
-      });
-      return;
+    if (file.extension === 'md') {
+      await this.renderMarkdown(file, container);
+    } else if (file.extension === 'canvas') {
+      await this.renderCanvas(file, container);
+    } else if (file.extension === 'base') {
+      await this.renderBase(file, container);
+    } else if (this.isImage(file)) {
+      this.renderImage(file, container);
+    } else if (this.isAudio(file)) {
+      this.renderAudio(file, container);
+    } else if (this.isVideo(file)) {
+      this.renderVideo(file, container);
+    } else {
+      container.createEl('p', { text: 'No preview available' });
     }
+  }
 
-    // Videos
-    const videoExts = ['mp4', 'webm', 'mov', 'avi', 'mkv'];
-    if (videoExts.includes(ext)) {
-      container.createEl('video', {
-        attr: {
-          src: this.app.vault.getResourcePath(file),
-          controls: 'true',
-          style: 'max-width: 100%; max-height: 500px;'
-        }
-      });
-      return;
-    }
-
-    // Audio
-    const audioExts = ['mp3', 'wav', 'ogg', 'm4a', 'flac'];
-    if (audioExts.includes(ext)) {
-      container.createEl('audio', {
-        attr: {
-          src: this.app.vault.getResourcePath(file),
-          controls: 'true',
-          style: 'width: 100%;'
-        }
-      });
-      return;
-    }
-
-    // Excalidraw raw
-    if (ext === 'excalidraw') {
-      container.createEl('p', {
-        text: '🎨 Excalidraw drawing (open to preview)',
-        attr: { style: 'color: var(--text-muted); font-style: italic;' }
-      });
-      return;
-    }
-
-    // Markdown / text
+  private async renderMarkdown(file: TFile, container: HTMLElement): Promise<void> {
     const content = await this.app.vault.cachedRead(file);
+    await MarkdownRenderer.render(this.app, content, container, file.path, this);
+  }
 
-    if (content.trim().length === 0) {
-      container.createEl('p', {
-        text: '(Empty file)',
-        attr: { style: 'color: var(--text-muted); font-style: italic;' }
-      });
-      return;
-    }
+  private async renderCanvas(file: TFile, container: HTMLElement): Promise<void> {
+    const content = await this.app.vault.cachedRead(file);
+    container.createEl('pre', { text: content });
+  }
 
-    this.component = new Component();
-    this.component.load();
+  private async renderBase(file: TFile, container: HTMLElement): Promise<void> {
+    const content = await this.app.vault.cachedRead(file);
+    container.createEl('pre', { text: content });
+  }
 
-    await MarkdownRenderer.render(
-      this.app,
-      content,
-      container,
-      file.path,
-      this.component
-    );
+  private renderImage(file: TFile, container: HTMLElement): void {
+    const img = container.createEl('img');
+    img.src = this.app.vault.getResourcePath(file);
+    img.addClass('vault-cleanup-preview-image');
+  }
+
+  private renderAudio(file: TFile, container: HTMLElement): void {
+    const audio = container.createEl('audio', { attr: { controls: '' } });
+    audio.src = this.app.vault.getResourcePath(file);
+  }
+
+  private renderVideo(file: TFile, container: HTMLElement): void {
+    const video = container.createEl('video', { attr: { controls: '' } });
+    video.src = this.app.vault.getResourcePath(file);
+    video.addClass('vault-cleanup-preview-video');
+  }
+
+  private isImage(file: TFile): boolean {
+    return ['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'bmp'].includes(file.extension.toLowerCase());
+  }
+
+  private isAudio(file: TFile): boolean {
+    return ['mp3', 'wav', 'ogg', 'm4a'].includes(file.extension.toLowerCase());
+  }
+
+  private isVideo(file: TFile): boolean {
+    return ['mp4', 'webm', 'mov'].includes(file.extension.toLowerCase());
+  }
+
+  cleanup(): void {
+    this.unload();
   }
 }

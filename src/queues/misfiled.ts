@@ -1,20 +1,24 @@
 import { App, TFile } from 'obsidian';
 
-export function getMisfiledFiles(app: App, allowedFolders: string[]): TFile[] {
-  const allowedSet = new Set(allowedFolders.map(f => f.toLowerCase()));
+export async function getMisfiledFiles(app: App, allowedFolders: string[]): Promise<TFile[]> {
+  const result: TFile[] = [];
+  const markdownFiles = app.vault.getMarkdownFiles();
 
-  return app.vault.getMarkdownFiles().filter(file => {
+  for (const file of markdownFiles) {
     const path = file.path;
 
-    // Root files are allowed (no "/" in path)
-    if (!path.includes('/')) {
-      return false;
+    // Skip files in root
+    if (!path.includes('/')) continue;
+
+    const topFolder = path.split('/')[0];
+    if (!topFolder) continue;
+
+    const folderLower = topFolder.toLowerCase();
+
+    if (!allowedFolders.includes(folderLower)) {
+      result.push(file);
     }
+  }
 
-    // Get top-level folder
-    const topFolder = path.split('/')[0].toLowerCase();
-
-    // Misfiled if not in allowed folders
-    return !allowedSet.has(topFolder);
-  });
+  return result;
 }

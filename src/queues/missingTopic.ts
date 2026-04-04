@@ -1,26 +1,25 @@
-import { App, TFile } from 'obsidian';
+import { App, TFile, CachedMetadata } from 'obsidian';
 
-export function getMissingTopicFiles(app: App): TFile[] {
-  return app.vault.getMarkdownFiles().filter(file => {
-    const cache = app.metadataCache.getFileCache(file);
+export async function getMissingTopicFiles(app: App): Promise<TFile[]> {
+  const result: TFile[] = [];
+  const markdownFiles = app.vault.getMarkdownFiles();
 
-    const allTags: string[] = [];
+  for (const file of markdownFiles) {
+    const cache: CachedMetadata | null = app.metadataCache.getFileCache(file);
+    const frontmatterTags: string[] = Array.isArray(cache?.frontmatter?.tags)
+      ? (cache.frontmatter.tags as string[])
+      : [];
+    const inlineTags: string[] = (cache?.tags ?? []).map(t => t.tag);
+    const allTags: string[] = [...frontmatterTags, ...inlineTags];
 
-    if (cache?.frontmatter?.tags) {
-      const fmTags = cache.frontmatter.tags;
-      if (Array.isArray(fmTags)) {
-        allTags.push(...fmTags);
-      } else if (typeof fmTags === 'string') {
-        allTags.push(fmTags);
-      }
+    const hasTopicTag = allTags.some(tag =>
+      tag.toLowerCase().startsWith('#topic/') || tag.toLowerCase().startsWith('topic/')
+    );
+
+    if (!hasTopicTag) {
+      result.push(file);
     }
+  }
 
-    if (cache?.tags) {
-      allTags.push(...cache.tags.map(t => t.tag.replace(/^#/, '')));
-    }
-
-    const hasTopicTag = allTags.some(tag => tag.startsWith('topic/'));
-
-    return !hasTopicTag;
-  });
+  return result;
 }
