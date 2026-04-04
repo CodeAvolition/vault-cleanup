@@ -1,7 +1,7 @@
 {
-	"name": "obsidian-sample-plugin",
+	"name": "vault-cleanup",
 	"version": "1.0.0",
-	"description": "This is a sample plugin for Obsidian (https://obsidian.md)",
+	"description": "Dashboard for cleaning up empty, untagged, and unfiled notes",
 	"main": "main.js",
 	"type": "module",
 	"private": true,
@@ -9,7 +9,9 @@
 		"dev": "node esbuild.config.mjs",
 		"build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
 		"version": "node version-bump.mjs && git add manifest.json versions.json",
-		"lint": "eslint ."
+		"lint": "eslint .",
+		"release": "semantic-release",
+		"release:dry-run": "semantic-release --dry-run"
 	},
 	"keywords": [],
 	"license": "0-BSD",
