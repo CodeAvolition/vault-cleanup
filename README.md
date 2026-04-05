@@ -96,13 +96,16 @@ Some queues support batch operations from the dashboard:
 2. Click **Browse** and search for "Vault Cleanup"
 3. Click **Install**, then **Enable**
 
-### Manual Installation
-
-1. Download `main.js`, `manifest.json`, and `styles.css` from the [latest release](https://github.com/CodeAvolition/vault-cleanup/releases)
-2. Create folder: `.obsidian/plugins/vault-cleanup/`
-3. Copy the files into that folder
-4. Enable in **Settings → Community plugins**
-
 
 ## Feature Plans / TODO
 - [ ] implement a queue to make sure all my daily files fit the same template (i changed templates in the past and i want an easy way to make sure they all still follow the current template)
+
+## note to self remember to use Conventional Commits
+|Prefix|When to Use|Changelog Section|Version Bump|
+|---|---|---|---|
+|`feat:`|New feature|**Features**|Minor (1.x.0)|
+|`fix:`|Bug fix|**Bug Fixes**|Patch (1.0.x)|
+|`perf:`|Performance improvement|**Performance**|Patch|
+|`docs:`|Documentation only|Not included|No release|
+|`chore:`|Maintenance, deps|Not included|No release|
+|`refactor:`|Code restructure|Not included|No release|
