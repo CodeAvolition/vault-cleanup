@@ -6,8 +6,11 @@ export function getExcludedFolders(app: App): string[] {
 
   // Get Templates core plugin folder
   const templatesPlugin = app.internalPlugins.getPluginById('templates');
-  if (templatesPlugin?.enabled && templatesPlugin.options?.folder) {
-    excluded.push(String(templatesPlugin.options.folder).toLowerCase());
+  if (templatesPlugin?.enabled) {
+    const folder = templatesPlugin.options?.folder;
+    if (typeof folder === 'string' && folder.length > 0) {
+      excluded.push(folder.toLowerCase());
+    }
   }
 
   // Get Daily Notes template folder (the folder containing the template, not daily notes themselves)

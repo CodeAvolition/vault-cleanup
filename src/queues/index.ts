@@ -30,13 +30,13 @@ export class QueueDetectors {
         files = await getUntaggedFiles(this.app);
         break;
       case 'unfiled':
-        files = await getUnfiledFiles(this.app);
+        files = getUnfiledFiles(this.app);
         break;
       case 'unused':
         files = await getUnusedAttachments(this.app);
         break;
       case 'orphan':
-        files = await getOrphanFiles(this.app);
+        files = getOrphanFiles(this.app);
         break;
       case 'missingType':
         files = await getMissingTypeFiles(this.app);

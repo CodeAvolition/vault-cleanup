@@ -1,5 +1,5 @@
 import { App, TFile } from 'obsidian';
-import { diffLines, Change } from 'diff';
+import { diffLines } from 'diff';
 import { getDailyNoteSettings } from 'obsidian-daily-notes-interface';
 
 export class TemplateDiffRenderer {
@@ -87,9 +87,9 @@ export class TemplateDiffRenderer {
 
         // Create header
         const header = container.createEl('div', { cls: 'vault-cleanup-diff-header' });
-        header.createEl('span', { text: '🔴 Missing from note', cls: 'vault-cleanup-diff-legend-removed' });
-        header.createEl('span', { text: '🟢 Extra in note', cls: 'vault-cleanup-diff-legend-added' });
-        header.createEl('span', { text: '⚪ Matching', cls: 'vault-cleanup-diff-legend-same' });
+        header.createEl('span', { text: 'Missing from note 🔴', cls: 'vault-cleanup-diff-legend-removed' });
+        header.createEl('span', { text: 'Extra in note 🟢', cls: 'vault-cleanup-diff-legend-added' });
+        header.createEl('span', { text: 'Matching ⚪', cls: 'vault-cleanup-diff-legend-same' });
 
         // Create diff view
         const diffView = container.createEl('div', { cls: 'vault-cleanup-diff-view' });
