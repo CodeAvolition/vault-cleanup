@@ -99,13 +99,3 @@ Some queues support batch operations from the dashboard:
 
 ## Feature Plans / TODO
 - [ ] implement a queue to make sure all my daily files fit the same template (i changed templates in the past and i want an easy way to make sure they all still follow the current template)
-
-## note to self remember to use Conventional Commits
-|Prefix|When to Use|Changelog Section|Version Bump|
-|---|---|---|---|
-|`feat:`|New feature|**Features**|Minor (1.x.0)|
-|`fix:`|Bug fix|**Bug Fixes**|Patch (1.0.x)|
-|`perf:`|Performance improvement|**Performance**|Patch|
-|`docs:`|Documentation only|Not included|No release|
-|`chore:`|Maintenance, deps|Not included|No release|
-|`refactor:`|Code restructure|Not included|No release|
