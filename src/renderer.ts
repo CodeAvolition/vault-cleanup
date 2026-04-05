@@ -18,7 +18,7 @@ export class FilePreviewRenderer extends Component {
     } else if (file.extension === 'base') {
       await this.renderBase(file, container);
     } else if (file.extension === 'pdf') {
-      await this.renderPdf(file, container);
+      this.renderPdf(file, container);
     } else if (this.isImage(file)) {
       this.renderImage(file, container);
     } else if (this.isAudio(file)) {
@@ -45,17 +45,17 @@ export class FilePreviewRenderer extends Component {
     container.createEl('pre', { text: content });
   }
 
-private renderPdf(file: TFile, container: HTMLElement): void {
-  const resourcePath = this.app.vault.getResourcePath(file);
+  private renderPdf(file: TFile, container: HTMLElement): void {
+    const resourcePath = this.app.vault.getResourcePath(file);
 
-  const iframe = container.createEl('iframe', {
-    cls: 'vault-cleanup-pdf-preview',
-    attr: {
-      src: resourcePath,
-      frameborder: '0',
-    }
-  });
-}
+    container.createEl('iframe', {
+      cls: 'vault-cleanup-pdf-preview',
+      attr: {
+        src: resourcePath,
+        frameborder: '0',
+      }
+    });
+  }
 
   private renderImage(file: TFile, container: HTMLElement): void {
     const img = container.createEl('img');

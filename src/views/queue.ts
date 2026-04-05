@@ -1,4 +1,4 @@
-import { ItemView, WorkspaceLeaf, TFile, Notice } from 'obsidian';
+import { ItemView, WorkspaceLeaf, TFile, Notice, ViewStateResult } from 'obsidian';
 import type VaultCleanupPlugin from '../main';
 import { QUEUE_CONFIGS } from '../queues/configs';
 import { VIEW_TYPE_QUEUE } from './types';
@@ -28,7 +28,7 @@ export class CleanupQueueView extends ItemView {
   getDisplayText(): string { return 'Cleanup queue'; }
   getIcon(): string { return 'list-checks'; }
 
-  async setState(state: QueueViewState, result: Record<string, unknown>): Promise<void> {
+  async setState(state: QueueViewState, result: ViewStateResult): Promise<void> {
     if (state.queueType) {
       this.queueType = state.queueType;
       this.files = await this.plugin.detectors.getFilesForQueue(this.queueType);
@@ -48,10 +48,11 @@ export class CleanupQueueView extends ItemView {
     this.contentEl.setAttribute('tabindex', '0');
     this.registerDomEvent(this.contentEl, 'keydown', (e) => { this.handleKeydown(e); });
 
-    // Re-focus when view becomes active
+    // Re-focus when layout changes
     this.registerEvent(
-      this.app.workspace.on('active-leaf-change', (leaf) => {
-        if (leaf?.view === this) {
+      this.app.workspace.on('layout-change', () => {
+        // Check if this view's leaf is the active one
+        if (this.app.workspace.getMostRecentLeaf() === this.leaf) {
           this.contentEl.focus();
         }
       })
@@ -59,6 +60,7 @@ export class CleanupQueueView extends ItemView {
 
     await this.render();
   }
+
 
   async onClose(): Promise<void> {
     this.renderer.cleanup();
